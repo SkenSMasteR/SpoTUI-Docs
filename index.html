@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SpoTUI — Terminal-inspired Spotify theme</title>
+    <meta name="description" content="SpoTUI is a terminal-inspired theme for Spotify that overlays a custom, keyboard-driven interface directly inside the Spotify client. Built for Spicetify." />
+    <meta property="og:title" content="SpoTUI — Terminal-inspired Spotify theme" />
+    <meta property="og:description" content="A terminal-inspired, keyboard-driven Spotify interface built for Spicetify." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/SkenSMasteR/SpoTUI/refs/heads/master/assets/preview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/SkenSMasteR/SpoTUI/refs/heads/master/assets/preview.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      html { scroll-behavior: smooth }
+      * { border-radius: 0; box-sizing: border-box }
+      body { --fg: #e6e6e6; --dim: #b3b3b3; --o: #ff6a00; --bg: #0b0b0b; --line: #222; --glow: 0 0 12px rgba(255,106,0,0.4); --nav-h: 48px; margin: 0; background: var(--bg); color: var(--fg); font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, "DejaVu Sans Mono", monospace }
+      a { color: var(--o); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 940px; margin: 0 auto; padding: 0 20px }
+      .logo { font-size: min(2.1vw,12px); line-height: 1; letter-spacing: 0; white-space: pre; margin: 0; color: var(--o); overflow: hidden }
+      .nav { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line) }
+      .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: var(--nav-h); gap: 16px }
+      .nav .brand { font-size: 13px; color: var(--fg); letter-spacing: .18em }
+      .nav .links { display: flex; gap: 20px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase }
+      .nav .links a { color: var(--dim) }
+      .nav .links a:hover, .nav .links a.active { color: var(--o); text-decoration: none }
+      .hero { padding: 0; min-height: calc(100vh - var(--nav-h)); display: flex; align-items: center; position: relative; }
+      .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; }
+      .full-bleed { width: 100%; padding: 0 10%; }
+      .hero-left { animation: slideInLeft 1s ease-out; align-self: start; }
+      .hero-right { animation: slideInRight 1s ease-out; margin-right: -10%; }
+      
+      .terminal-window { border: 1px solid var(--line); border-radius: 6px; margin-top: 32px; }
+      .terminal-header { background: var(--line); padding: 8px 12px; display: flex; align-items: center; border-bottom: 1px solid var(--line); }
+      .terminal-buttons { display: flex; gap: 6px; }
+      .term-btn { display: block; width: 12px; height: 12px; border-radius: 50%; }
+      .term-btn.close { background: #ff5f56; }
+      .term-btn.min { background: #ffbd2e; }
+      .term-btn.max { background: #27c93f; }
+      .terminal-title { color: var(--dim); font-size: 12px; margin: 0 auto; }
+      .terminal-body { padding: 12px; }
+
+      .os-windows .terminal-buttons { order: 3; margin-left: auto; display: flex; }
+      .os-windows .terminal-title { order: 1; text-align: left; padding-left: 12px; margin: 0; }
+      .os-windows .term-btn { background: transparent; border-radius: 0; font-family: sans-serif; color: var(--dim); width: 24px; height: 24px; line-height: 24px; text-align: center; }
+      .os-windows .term-btn.min { order: 1; }
+      .os-windows .term-btn.max { order: 2; }
+      .os-windows .term-btn.close { order: 3; }
+      .os-windows .term-btn.close::before { content: '×'; font-size: 18px; }
+      .os-windows .term-btn.min::before { content: '_'; font-size: 16px; position: relative; top: -2px; }
+      .os-windows .term-btn.max::before { content: '☐'; font-size: 14px; }
+      .os-windows .term-btn:hover { background: #333; color: var(--fg); }
+      .os-windows .term-btn.close:hover { background: #e81123; }
+
+      .scroll-down { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 24px; height: 40px; border: 1px solid var(--dim); border-radius: 99px; }
+      .scroll-down::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 4px; height: 8px; background: var(--dim); border-radius: 99px; animation: scroll-anim 2s infinite; }
+      @keyframes scroll-anim { 0% { opacity: 1; transform: translate(-50%, 0); } 50% { opacity: 1; transform: translate(-50%, 10px); } 100% { opacity: 0; transform: translate(-50%, 15px); } }
+      #hero-install-command .code-wrap { background: var(--bg); border: 1px solid var(--line); padding: 4px 12px; border-radius: 99px; }
+      #hero-install-command pre.code { margin: 0; padding: 0; border: 0; }
+      #hero-install-command .copy-btn { top: 50%; transform: translateY(-50%); }
+      .tag { margin: 24px 0 0; max-width: 640px; font-size: 14px; line-height: 1.7; color: var(--dim); font-weight: 400 }
+      .stage { margin-top: 44px; perspective: 1400px; }
+      .shot { transform: rotateX(12deg) rotateY(-20deg); border: 1px solid var(--line); transition: box-shadow .2s }
+      .shot:hover { box-shadow: var(--glow) }
+      .shot img { display: block; width: 100%; height: auto }
+      .sec { padding: 44px 0; border-top: 1px solid var(--line) }
+      .h2 { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); margin: 0 0 20px; font-weight: 600 }
+      .h3 { font-size: 14px; color: var(--fg); margin: 0 0 10px; font-weight: 600 }
+      .cols { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)) }
+      .p { font-size: 13px; line-height: 1.7; color: var(--dim); margin: 0 0 8px }
+      .code-wrap { position: relative }
+      .copy-btn { position: absolute; top: 8px; right: 8px; background: var(--line); color: var(--dim); border: 1px solid var(--line); padding: 4px 8px; font-size: 10px; cursor: pointer; opacity: 0; transition: opacity .2s }
+      .code-wrap:hover .copy-btn { opacity: 1 }
+      .copy-btn:hover { color: var(--fg) }
+      .copy-btn.copied { color: var(--o) }
+      pre.code { margin: 8px 0 0; padding: 12px; border: 1px solid var(--line); color: var(--fg); font-size: 12px; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; word-break: break-all }
+      table { width: 100%; border-collapse: collapse; font-size: 13px }
+      td { text-align: left; padding: 8px 0; border-bottom: 1px solid var(--line) }
+      td:first-child { color: var(--fg); white-space: nowrap; padding-right: 24px }
+      td:last-child { color: var(--dim) }
+      tr:hover td { color: var(--fg); }
+      .frame { border: 1px solid var(--line) }
+      .frame img { display: block; width: 100%; height: auto }
+      footer { padding: 40px 0 64px; border-top: 1px solid var(--line); font-size: 13px; color: var(--dim) }
+      .screenshot-container { cursor: pointer; position: relative; transition: box-shadow .2s }
+      .screenshot-container:hover { box-shadow: var(--glow) }
+      .viewer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; align-items: center; justify-content: center }
+      .viewer-img { max-width: 90vw; max-height: 90vh; border: 2px solid var(--line) }
+      .viewer-close { position: fixed; top: 20px; right: 30px; font-size: 40px; color: var(--dim); cursor: pointer; transition: color .2s }
+      .viewer-close:hover { color: var(--fg) }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      @keyframes slideInLeft { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes slideInRight { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+  </head>
+  <body>
+
+    <nav class="nav">
+      <div class="wrap">
+        <span class="brand">SpoTUI</span>
+        <div class="links">
+          <a href="#installation">Installation</a>
+          <a href="#commands">Commands</a>
+          <a href="https://github.com/SkenSMasteR/SpoTUI" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-grid full-bleed">
+        <div class="hero-left">
+<pre class="logo">   ▄████████    ▄███████▄  ▄██████▄      ███     ███    █▄   ▄█
+  ███    ███   ███    ███ ███    ███ ▀█████████▄ ███    ███ ███
+  ███    █▀    ███    ███ ███    ███    ▀███▀▀██ ███    ███ ███▌
+  ███          ███    ███ ███    ███     ███   ▀ ███    ███ ███▌
+▀███████████ ▀█████████▀  ███    ███     ███     ███    ███ ███▌
+         ███   ███        ███    ███     ███     ███    ███ ███
+   ▄█    ███   ███        ███    ███     ███     ███    ███ ███
+ ▄████████▀   ▄████▀       ▀██████▀     ▄████▀   ████████▀  █▀   </pre>
+          <h1 class="tag">A terminal-inspired theme for Spotify that overlays a custom, keyboard-driven interface directly inside the Spotify client. Built for <a href="https://spicetify.app/" target="_blank" rel="noreferrer">Spicetify</a>.</h1>
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <div class="terminal-buttons">
+                <span class="term-btn close"></span>
+                <span class="term-btn min"></span>
+                <span class="term-btn max"></span>
+              </div>
+              <div class="terminal-title">bash</div>
+            </div>
+            <div class="terminal-body">
+              <pre id="hero-install-code" class="code"></pre>
+            </div>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="stage">
+            <div class="shot screenshot-container"><img src="https://raw.githubusercontent.com/SkenSMasteR/SpoTUI/refs/heads/master/assets/preview.png" alt="SpoTUI preview" /></div>
+          </div>
+        </div>
+        <a href="#lyrics-view" class="scroll-down"></a>
+      </div>
+    </section>
+
+    <section class="sec" id="lyrics-view">
+      <div class="wrap">
+        <h2 class="h2">Lyrics View</h2>
+        <div class="frame screenshot-container"><img src="https://raw.githubusercontent.com/SkenSMasteR/SpoTUI/refs/heads/master/assets/lyrics.png" alt="SpoTUI lyrics view" loading="lazy" /></div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <h2 class="h2" id="installation">Installation</h2>
+        <div class="cols">
+          <div>
+            <h3 class="h3">Linux</h3>
+            <div id="install-linux">
+              <pre class="code">curl -fsSL -o install.sh https://raw.githubusercontent.com/SkenSMasteR/SpoTUI/main/scripts/install/linux/install.sh && chmod +x install.sh && ./install.sh</pre>
+            </div>
+          </div>
+          <div>
+            <h3 class="h3">Windows</h3>
+            <div id="install-windows">
+              <pre class="code">iwr -useb https://raw.githubusercontent.com/SkenSMasteR/SpoTUI/main/scripts/install/windows/install.ps1 | iex</pre>
+            </div>
+          </div>
+        </div>
+        <p class="p" style="margin-top:16px">Or search for SpoTUI in the Spicetify Marketplace.</p>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="wrap">
+        <h2 class="h2" id="commands">Commands</h2>
+        <table>
+          <tbody>
+            <tr><td>tui -m [cli|cmd]</td><td>Switch TUI mode</td></tr>
+            <tr><td>playlist / list</td><td>Open playlist viewer</td></tr>
+            <tr><td>play / pause / p</td><td>Toggle playback</td></tr>
+            <tr><td>skip</td><td>Next track</td></tr>
+            <tr><td>back</td><td>Previous track</td></tr>
+            <tr><td>v / volume &lt;%&gt;</td><td>Set volume (0-100)</td></tr>
+            <tr><td>shuffle</td><td>Toggle shuffle</td></tr>
+            <tr><td>loop / superloop</td><td>Toggle repeat mode</td></tr>
+            <tr><td>lyrics</td><td>Toggle lyrics panel</td></tr>
+            <tr><td>search</td><td>Open Spotify's native search</td></tr>
+            <tr><td>clear</td><td>Clear the TUI output</td></tr>
+            <tr><td>help</td><td>Show the help panel</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap"><a href="https://github.com/SkenSMasteR" target="_blank" rel="noreferrer">SkenS</a></div>
+    </footer>
+
+    <div class="viewer-overlay">
+      <span class="viewer-close">&times;</span>
+      <img class="viewer-img" src="" alt="Enlarged screenshot" />
+    </div>
+
+    <script>
+      function initCopyButtons() {
+        const codeBlocks = document.querySelectorAll('pre.code');
+        codeBlocks.forEach(codeBlock => {
+          if (codeBlock.parentNode.classList.contains('code-wrap')) return;
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'code-wrap';
+
+          const copyButton = document.createElement('button');
+          copyButton.className = 'copy-btn';
+          copyButton.textContent = 'Copy';
+
+          codeBlock.parentNode.insertBefore(wrapper, codeBlock);
+          wrapper.appendChild(codeBlock);
+          wrapper.appendChild(copyButton);
+
+          copyButton.addEventListener('click', () => {
+            const textToCopy = codeBlock.innerText;
+            navigator.clipboard.writeText(textToCopy)
+              .then(() => {
+                copyButton.textContent = 'Copied!';
+                copyButton.classList.add('copied');
+                setTimeout(() => {
+                  copyButton.textContent = 'Copy';
+                  copyButton.classList.remove('copied');
+                }, 2000);
+              })
+              .catch(err => {
+                console.error('Failed to copy text: ', err);
+                copyButton.textContent = 'Error';
+                setTimeout(() => {
+                  copyButton.textContent = 'Copy';
+                }, 2000);
+              });
+          });
+        });
+      }
+
+      function initScreenshotViewer() {
+        const screenshotContainers = document.querySelectorAll('.screenshot-container');
+        const viewerOverlay = document.querySelector('.viewer-overlay');
+        const viewerImg = document.querySelector('.viewer-img');
+        const closeBtn = document.querySelector('.viewer-close');
+
+        const openViewer = (src) => {
+          viewerImg.src = src;
+          viewerOverlay.style.display = 'flex';
+        };
+
+        const closeViewer = () => {
+          viewerOverlay.style.display = 'none';
+          viewerImg.src = '';
+        };
+
+        screenshotContainers.forEach(container => {
+          container.addEventListener('click', () => {
+            const imgSrc = container.querySelector('img').src;
+            openViewer(imgSrc);
+          });
+        });
+
+        closeBtn.addEventListener('click', closeViewer);
+        viewerOverlay.addEventListener('click', (e) => {
+          if (e.target === viewerOverlay) {
+            closeViewer();
+          }
+        });
+      }
+
+      function initOSDetection() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const osOverride = urlParams.get('os');
+
+        const userAgent = window.navigator.userAgent;
+        let os = osOverride;
+
+        if (!os) {
+          if (userAgent.indexOf("Win") !== -1) os = "windows";
+          if (userAgent.indexOf("Mac") !== -1) os = "mac";
+          if (userAgent.indexOf("Linux") !== -1) os = "linux";
+        }
+
+        const terminalWindow = document.querySelector('.terminal-window');
+        const terminalTitle = document.querySelector('.terminal-title');
+        const heroInstallCode = document.getElementById('hero-install-code');
+        const otherOptions = document.getElementById('other-install-options');
+
+        const installScripts = {
+          windows: `iwr -useb https://raw.githubusercontent.com/SkenSMasteR/SpoTUI/main/scripts/install/windows/install.ps1 | iex`,
+          linux: `curl -fsSL -o install.sh https://raw.githubusercontent.com/SkenSMasteR/SpoTUI/main/scripts/install/linux/install.sh && chmod +x install.sh && ./install.sh`
+        };
+
+        if (os === 'windows') {
+          terminalWindow.classList.add('os-windows');
+          terminalTitle.textContent = 'PowerShell';
+          heroInstallCode.textContent = installScripts.windows;
+          initCopyButtons();
+        } else if (os === 'linux') {
+          terminalTitle.textContent = 'bash';
+          heroInstallCode.textContent = installScripts.linux;
+          initCopyButtons();
+        } else {
+          terminalWindow.style.display = 'none';
+          if(otherOptions) otherOptions.style.display = 'block';
+        }
+      }
+
+      function initApp() {
+        initOSDetection();
+        initScreenshotViewer();
+      }
+
+      document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+
+  </body>
+</html>
