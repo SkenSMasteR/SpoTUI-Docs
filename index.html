@@ -397,9 +397,6 @@
                     <div class="screenshot-container"><img src="${theme.screenshot_url}" alt="${theme.name}"></div>
                     <div class="theme-card-content">
                         <h3 class="h3">${theme.name}</h3>
-                        <div class="commands">
-                            ${theme.commands.map(cmd => `<div class="code-wrap"><pre class="code">${cmd}</pre></div>`).join('')}
-                        </div>
                     </div>
                 `;
                 themesContainer.appendChild(card);
