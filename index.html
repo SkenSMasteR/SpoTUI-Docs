@@ -191,17 +191,20 @@
         <h2 class="h2" id="commands">Commands</h2>
         <table>
           <tbody>
-            <tr><td>tui -m [cli|cmd]</td><td>Switch TUI mode</td></tr>
+            <tr><td>tui -l -a &lt;on/off&gt;</td><td>Toggle ASCII animation</td></tr>
+            <tr><td>tui -wp &lt;url&gt; [-o &lt;opacity&gt;]</td><td>Set wallpaper (opacity 0-1)</td></tr>
+            <tr><td>tui -wp off</td><td>Remove wallpaper</td></tr>
             <tr><td>playlist / list</td><td>Open playlist viewer</td></tr>
             <tr><td>play / pause / p</td><td>Toggle playback</td></tr>
             <tr><td>skip</td><td>Next track</td></tr>
-            <tr><td>back</td><td>Previous track</td></tr>
+            <tr><td>s / seek &lt;mm:ss&gt;</td><td>Jump to a specific time</td></tr>
             <tr><td>v / volume &lt;%&gt;</td><td>Set volume (0-100)</td></tr>
             <tr><td>shuffle</td><td>Toggle shuffle</td></tr>
             <tr><td>loop / superloop</td><td>Toggle repeat mode</td></tr>
             <tr><td>lyrics</td><td>Toggle lyrics panel</td></tr>
             <tr><td>search</td><td>Open Spotify's native search</td></tr>
             <tr><td>clear</td><td>Clear the TUI output</td></tr>
+            <tr><td>theme</td><td>Browse and apply themes</td></tr>
             <tr><td>help</td><td>Show the help panel</td></tr>
           </tbody>
         </table>
