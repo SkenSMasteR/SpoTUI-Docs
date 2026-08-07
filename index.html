@@ -354,12 +354,34 @@
         const searchInput = document.getElementById('search');
         const sortSelect = document.getElementById('sort');
 
-        const spotuiThemes = [{"id": 4, "name": "SpoTUI - Dear - NoAnimation", "screenshot_url": "https://i.postimg.cc/Hn41zTYT/screenshot-2026-08-07-00-56-27.png", "commands": ["tui -wp https://images.unsplash.com/photo-1542806109-e88b46573e79 -o 0.3", "tui -l -a off"]}, {"id": 5, "name": "SpoTUI - Dear - Animation", "screenshot_url": "https://i.postimg.cc/Hn41zTYT/screenshot-2026-08-07-00-56-27.png", "commands": ["tui -wp https://images.unsplash.com/photo-1542806109-e88b46573e79 -o 0.3", "tui -l -a on"]}, {"id": 5, "name": "SpoTUI - Fire - NoAnimation", "screenshot_url": "https://img.ge/i/KVGD743.png", "commands": ["tui -wp https://wallpapercave.com/wp/wp4013623.jpg -o 0.3", "tui -l -a off"]}, {"id": 6, "name": "SpoTUI - Fire - Animation", "screenshot_url": "https://img.ge/i/KVGD743.png", "commands": ["tui -wp https://wallpapercave.com/wp/wp4013623.jpg -o 0.3", "tui -l -a off"]}, {"id": 6, "name": "SpoTUI - Flowers - NoAnimation", "screenshot_url": "https://img.ge/i/FevuL23.png", "commands": ["tui -wp https://wallpapercave.com/wp/C9TP1Ij.jpg -o 0.1", "tui -l -a off"]}, {"id": 7, "name": "SpoTUI - Flowers - Animation", "screenshot_url": "https://img.ge/i/FevuL23.png", "commands": ["tui -wp https://wallpapercave.com/wp/C9TP1Ij.jpg -o 0.1", "tui -l -a on"]}, {"id": 7, "name": "SpoTUI - Default", "screenshot_url": "https://img.ge/i/0d36O69.png", "commands": ["tui -wp off", "tui -l -a on"]}];
-
-        let allThemes = spotuiThemes;
-        let filteredThemes = [...allThemes];
+        let allThemes = [];
+        let filteredThemes = [];
         let currentPage = 1;
         const itemsPerPage = 6;
+
+        function loadThemes() {
+            const script = document.createElement('script');
+            script.src = `https://spotui.root.sx/themes.js?_=${Math.floor(Date.now() / 1000)}`;
+
+            script.onload = () => {
+                if (window.spotuiThemes) {
+                    allThemes = window.spotuiThemes;
+                    filteredThemes = [...allThemes];
+                    sortThemes();
+                    displayPage(1);
+                } else {
+                    themesContainer.innerHTML = '<p style="color: var(--o);">Failed to load themes. The API might be temporarily unavailable.</p>';
+                }
+                document.body.removeChild(script);
+            };
+
+            script.onerror = () => {
+                themesContainer.innerHTML = '<p style="color: var(--o);">Failed to load themes. The API might be temporarily unavailable.</p>';
+                document.body.removeChild(script);
+            };
+
+            document.body.appendChild(script);
+        }
 
         function displayPage(page) {
             currentPage = page;
@@ -424,8 +446,7 @@
             displayPage(1);
         });
 
-        sortThemes();
-        displayPage(1);
+        loadThemes();
     }
 
       document.addEventListener('DOMContentLoaded', initApp);
