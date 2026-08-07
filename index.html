@@ -14,6 +14,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
       html { scroll-behavior: smooth }
       * { border-radius: 0; box-sizing: border-box }
@@ -107,6 +109,67 @@
       #pagination { display: flex; justify-content: center; margin-top: 30px; }
       #pagination button { background-color: #282828; color: var(--fg); border: 1px solid var(--line); padding: 10px 15px; margin: 0 5px; cursor: pointer; }
       #pagination button.active, #pagination button:hover { background-color: var(--o); color: var(--bg); border-color: var(--o); }
+
+      .theme-card-content { position: relative; }
+      .download-btn {
+        background: var(--line);
+        color: var(--dim);
+        border: none;
+        padding: 5px 8px;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+      }
+      .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+      }
+      .card-footer .p {
+        margin: 0;
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .download-btn:hover {
+        color: var(--fg);
+        background: #333;
+      }
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 200;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .popup-content {
+        background: var(--bg);
+        border: 1px solid var(--line);
+        padding: 20px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+      }
+      .popup-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+        color: var(--dim);
+        cursor: pointer;
+      }
+      .popup-close:hover { color: var(--fg); }
+      #popup-text { padding-right: 40px; }
+
+
     </style>
   </head>
   <body>
@@ -193,6 +256,7 @@
           <tbody>
             <tr><td>tui -l -a &lt;on/off&gt;</td><td>Toggle ASCII animation</td></tr>
             <tr><td>tui -wp &lt;url&gt; [-o &lt;opacity&gt;]</td><td>Set wallpaper (opacity 0-1)</td></tr>
+            <tr><td>tui -t pull &lt;theme_id&gt;</td><td>Apply a theme by its ID (you can find the id on our website)</td></tr>
             <tr><td>tui -wp off</td><td>Remove wallpaper</td></tr>
             <tr><td>playlist / list</td><td>Open playlist viewer</td></tr>
             <tr><td>play / pause / p</td><td>Toggle playback</td></tr>
@@ -203,7 +267,6 @@
             <tr><td>loop / superloop</td><td>Toggle repeat mode</td></tr>
             <tr><td>lyrics</td><td>Toggle lyrics panel</td></tr>
             <tr><td>search</td><td>Open Spotify's native search</td></tr>
-            <tr><td>clear</td><td>Clear the TUI output</td></tr>
             <tr><td>theme</td><td>Browse and apply themes</td></tr>
             <tr><td>help</td><td>Show the help panel</td></tr>
           </tbody>
@@ -234,6 +297,17 @@
       <span class="viewer-close">&times;</span>
       <img class="viewer-img" src="" alt="Enlarged screenshot" />
     </div>
+
+    <div id="command-popup" class="popup-overlay">
+      <div class="popup-content">
+        <span class="popup-close">&times;</span>
+        <p id="popup-text" class="p"></p>
+        <div id="popup-command">
+          <pre class="code"></pre>
+        </div>
+      </div>
+    </div>
+
 
     <script>
       function initCopyButtons() {
@@ -400,14 +474,48 @@
                     <div class="screenshot-container"><img src="${theme.screenshot_url}" alt="${theme.name}"></div>
                     <div class="theme-card-content">
                         <h3 class="h3">${theme.name}</h3>
+                        <div class="card-footer">
+                            <span class="p">Theme ID: ${btoa(theme.name)}</span>
+                            <button class="download-btn" data-theme-name="${theme.name}" data-theme-id="${btoa(theme.name)}"><i class="fas fa-download"></i></button>
+                        </div>
                     </div>
                 `;
                 themesContainer.appendChild(card);
             });
             initCopyButtons();
             initScreenshotViewer();
+            initCommandPopup();
             setupPagination();
         }
+
+        function initCommandPopup() {
+            const popup = document.getElementById('command-popup');
+            const popupText = document.getElementById('popup-text');
+            const popupCommand = popup.querySelector('.code');
+            const closeBtn = popup.querySelector('.popup-close');
+
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const themeName = btn.dataset.themeName;
+                    const themeId = btn.dataset.themeId;
+                    popupText.textContent = `Run the following command in SpoTUI to install the "${themeName}" theme.`;
+                    popupCommand.textContent = `tui -t pull ${themeId}`;
+                    initCopyButtons();
+                    popup.style.display = 'flex';
+                });
+            });
+
+            closeBtn.addEventListener('click', () => {
+                popup.style.display = 'none';
+            });
+
+            popup.addEventListener('click', (e) => {
+                if (e.target === popup) {
+                    popup.style.display = 'none';
+                }
+            });
+        }
+
 
         function setupPagination() {
             paginationContainer.innerHTML = '';
