@@ -58,8 +58,27 @@
       .os-windows .term-btn:hover { background: #333; color: var(--fg); }
       .os-windows .term-btn.close:hover { background: #e81123; }
 
-      .scroll-down { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 24px; height: 40px; border: 1px solid var(--dim); border-radius: 99px; }
-      .scroll-down::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 4px; height: 8px; background: var(--dim); border-radius: 99px; }
+      .scroll-down {
+        display: block;
+        position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+        height: 80px;
+        width: 50px;
+        border: 10px solid transparent;
+        box-sizing: border-box;
+        background:
+          conic-gradient(from 160deg at top,var(--o) 40deg,#0000 0) top,
+          conic-gradient(from -20deg at bottom,var(--o) 40deg,#0000 0) bottom,
+          radial-gradient(farthest-side,var(--o) 98%,#0000) bottom/100% 50%,
+          transparent;
+        background-size:100% 50%;
+        background-repeat: no-repeat;
+        filter: blur(4px);
+        animation: scroll-anim 1s infinite alternate;
+      }
+      @keyframes scroll-anim {
+        0%,30%   {background-position:top,bottom,bottom}
+        70%,100% {background-position:top,bottom,top}
+      }
       #hero-install-command .code-wrap { background: var(--bg); border: 1px solid var(--line); padding: 4px 12px; }
       #hero-install-command pre.code { margin: 0; padding: 0; border: 0; }
       #hero-install-command .copy-btn { top: 50%; transform: translateY(-50%); }
